@@ -1,25 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import Header from './components/Header';
+import Movie from './components/Movie';
 
-function App() {
+const API_KEY = process.env.REACT_APP_API_KEY;
+
+const App = () => {
+  const dispatch = useDispatch();
+  const movies = useSelector((state) => state.movies);
+  const query = useSelector((state) => state.query);
+
+  const fetchMovies = async (searchQuery) => {
+    if (!searchQuery) return;
+    try {
+      const response = await axios.get(`https://www.omdbapi.com/?s=${searchQuery}&apikey=${API_KEY}`);
+      dispatch({ type: 'SET_MOVIES', payload: response.data.Search || [] });
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (query) {
+      fetchMovies(query);
+    } else {
+      fetchMovies('Avengers');
+    }
+  }, [query, dispatch]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header title="Movies List App" setQuery={(query) => dispatch({ type: 'SET_QUERY', payload: query })} />
+      <div className="movie-list">
+      {movies.length > 0 ? (
+          movies.map(movie => (
+            <Movie key={movie.imdbID} movie={movie} />
+          ))
+        ) : (
+          <div className="no-results">No movies found.</div>
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
