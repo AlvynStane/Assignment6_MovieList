@@ -32,6 +32,7 @@ const App = () => {
   return (
     <div>
       <Header title="Movies List App" setQuery={(query) => dispatch({ type: 'SET_QUERY', payload: query })} />
+      <h2 className="h2-title">Show Your Favorite Movies</h2>
       <div className="movie-list">
       {movies.length > 0 ? (
           movies.map(movie => (
